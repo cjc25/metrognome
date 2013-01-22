@@ -1,5 +1,7 @@
-require "metrognome/version"
+require 'rails'
+require 'metrognome/railtie'
 
-module Metrognome
-  # Your code goes here...
-end
+require 'metrognome/scheduler'
+require 'metrognome/registrar'
+require 'metrognome/runner'
+
