@@ -14,11 +14,12 @@ namespace :metrognome do
   desc 'Begin the metrognome scheduler'
   task :start => :register do
     unless File.exists? Metrognome::PIDFILE
+      # Ignore SIGHUP since we'll probably be started from an SSH session.
       Signal.trap 'HUP', 'IGNORE'
 
       pid = fork do
         Rails.logger = Logger.new 'log/metrognome.log'
-        Metrognome::Runner.start
+        Metrognome::Registrar.instance.start
       end
 
       Process.detach pid

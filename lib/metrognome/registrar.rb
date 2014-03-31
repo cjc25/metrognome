@@ -1,27 +1,39 @@
 module Metrognome
   class Registrar
-    class << self
-      def registered
-        @registered ||= []
-      end
+    include Singleton
 
-      def register scheduler
-        raise ArgumentError.new "scheduler must be a Metrognome::Scheduler!" unless scheduler.is_a? Metrognome::Scheduler
-
-        @registered ||= []
-        @registered << scheduler
-        scheduler.lock = next_filename
-        scheduler.last = Time.now - 1.year
-        scheduler.call_setup
-      end
-
-      private
-        def next_filename
-          @counter ||= 0
-          @counter += 1
-          "metrognome-#{@counter}"
-        end
+    def self.register scheduler
+      self.instance.register scheduler
     end
+
+    def register scheduler
+      unless scheduler.is_a? Metrognome::Scheduler
+        raise ArgumentError.new "scheduler #{scheduler.inspect} must be a Metrognome::Scheduler."
+      end
+
+      @registered ||= []
+      @registered << scheduler
+    end
+
+    def start
+      @registered.each { |scheduler| scheduler.run }
+
+      wait_for_sigterm
+      Signal.trap("TERM") { exit 1 }
+
+      @registered.each do |scheduler|
+        scheduler.stop
+        scheduler.thread.run
+      end
+      @registered.each { |scheduler| scheduler.thread.join }
+    end
+
+    private
+      # Sleep until we get a SIGTERM.
+      def wait_for_sigterm
+        Signal.trap("TERM") { return }
+        sleep
+      end
   end
 end
 

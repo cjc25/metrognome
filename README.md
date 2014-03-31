@@ -24,7 +24,7 @@ To start the metrognome, run:
 
     $ bundle exec rake metrognome:start
 
-In production, use let Rails know to start the right environment:
+In production, use RAILS\_ENV to let Rails know to start the right environment:
 
     $ bundle exec rake RAILS_ENV=production metrognome:start
 
