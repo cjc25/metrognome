@@ -1,3 +1,5 @@
+require 'singleton'
+
 module Metrognome
   class Registrar
     include Singleton

@@ -19,6 +19,7 @@ namespace :metrognome do
 
       pid = fork do
         Rails.logger = Logger.new 'log/metrognome.log'
+        Rails.logger.formatter = Logger::Formatter.new
         Metrognome::Registrar.instance.start
       end
 

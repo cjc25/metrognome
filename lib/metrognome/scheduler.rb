@@ -1,6 +1,6 @@
 module Metrognome
   class Scheduler
-    attr_reader :description, :thread
+    attr_reader :thread
 
     def initialize interval, description = 'Anonymous scheduler'
       @interval = interval
@@ -24,14 +24,16 @@ module Metrognome
       @thread = Thread.new do
         instance_eval(&@setup) if @setup
 
-        while not @stopped do
+        until @stopped do
           start = Time.now
-          # TODO log beginning execution
+          Rails.logger.info "#{@description} beginning task execution."
           instance_eval(&@task) if @task
-          # TODO log completed execution
+          Rails.logger.info "#{@description} completed task execution."
+          # TODO log stopping task
 
-          while (to_sleep = start + @interval - Time.now) > 0 and not @stopped
-            sleep to_sleep
+          until @stopped do
+            to_sleep = start + @interval - Time.now
+            break if to_sleep <= 0 or Kernel.sleep(to_sleep) >= to_sleep
           end
         end
       end
