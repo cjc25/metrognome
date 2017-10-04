@@ -18,9 +18,9 @@ namespace :metrognome do
       Signal.trap 'HUP', 'IGNORE'
 
       pid = fork do
-        Rails.logger = Logger.new 'log/metrognome.log'
-        Rails.logger.formatter = Logger::Formatter.new
-        Metrognome::Registrar.instance.start
+        # Point at a new log file but otherwise use the environment log
+        # settings.
+        Rails.logger.reopen 'log/metrognome.log'
       end
 
       Process.detach pid
