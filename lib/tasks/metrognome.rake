@@ -21,6 +21,7 @@ namespace :metrognome do
         # Point at a new log file but otherwise use the environment log
         # settings.
         Rails.logger.reopen 'log/metrognome.log'
+        Metrognome::Registrar.instance.start
       end
 
       Process.detach pid
